@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeetRec - Google Meet Audio Recorder</title>
+    <!-- Modern Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="A simple, premium web application to record audio from Google Meet directly in your browser.">
+</head>
+<body>
+    <div class="background-animation"></div>
+    <main class="container">
+        <div class="glass-card">
+            <header>
+                <div class="logo">
+                    <span class="icon">⏺</span>
+                    <h1>MeetRec</h1>
+                </div>
+                <p class="subtitle">Record Google Meet audio instantly directly from your browser.</p>
+            </header>
+            
+            <section class="recorder-section">
+                <div class="status-indicator">
+                    <div class="dot" id="recordingIndicator"></div>
+                    <span id="statusText">Ready to record</span>
+                </div>
+                
+                <div class="controls">
+                    <button id="startBtn" class="btn primary">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <circle cx="12" cy="12" r="8"></circle>
+                        </svg>
+                        Start Recording
+                    </button>
+                    
+                    <button id="stopBtn" class="btn danger" style="display: none;">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="6" width="12" height="12"></rect>
+                        </svg>
+                        Stop Recording
+                    </button>
+                    
+                    <a id="downloadBtn" class="btn success" style="display: none;">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Download Audio
+                    </a>
+                </div>
+
+                <div class="instructions">
+                    <h3>How it works:</h3>
+                    <ol>
+                        <li>Click <strong>Start Recording</strong>.</li>
+                        <li>Select your Google Meet tab from the list.</li>
+                        <li><strong>CRITICAL:</strong> Make sure to check the <strong>"Share tab audio"</strong> toggle.</li>
+                        <li>Click <strong>Share</strong>. Your recording begins immediately.</li>
+                    </ol>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
