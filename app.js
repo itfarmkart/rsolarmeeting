@@ -4,7 +4,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const downloadBtn = document.getElementById('downloadBtn');
     const statusText = document.getElementById('statusText');
     const recordingIndicator = document.getElementById('recordingIndicator');
-    
+    const audioPlaybackContainer = document.getElementById('audioPlaybackContainer');
+    const audioPlayback = document.getElementById('audioPlayback');
+
     let mediaRecorder;
     let audioChunks = [];
     let stream;
@@ -33,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Create a new stream with only the audio track, dropping the video
             const audioStream = new MediaStream(audioTracks);
-            
+
             // Setup MediaRecorder
             mediaRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm' });
 
@@ -46,15 +48,19 @@ document.addEventListener('DOMContentLoaded', () => {
             mediaRecorder.onstop = () => {
                 const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                 const audioUrl = URL.createObjectURL(audioBlob);
-                
+
                 // Format the download name with current date/time
                 const date = new Date();
-                const formattedDate = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}_${String(date.getHours()).padStart(2,'0')}-${String(date.getMinutes()).padStart(2,'0')}`;
-                
+                const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}_${String(date.getHours()).padStart(2, '0')}-${String(date.getMinutes()).padStart(2, '0')}`;
+
                 downloadBtn.href = audioUrl;
                 downloadBtn.download = `Meeting_Audio_${formattedDate}.webm`;
                 downloadBtn.style.display = 'inline-flex';
-                
+
+                // Set the preview player source and show it
+                audioPlayback.src = audioUrl;
+                audioPlaybackContainer.style.display = 'block';
+
                 audioChunks = []; // Clear for next recording
             };
 
@@ -70,11 +76,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Start recording
             mediaRecorder.start();
-            
+
             // Update UI
             startBtn.style.display = 'none';
             stopBtn.style.display = 'inline-flex';
             downloadBtn.style.display = 'none';
+            audioPlaybackContainer.style.display = 'none'; // Hide preview when re-recording
             statusText.innerText = 'Recording in progress... (Meeting Audio)';
             statusText.style.color = 'var(--text-primary)';
             recordingIndicator.classList.add('active');
@@ -97,12 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
             mediaRecorder.stop();
         }
-        
+
         // Stop all tracks to remove the "Currently sharing" browser indicator
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
         }
-        
+
         // Update UI
         startBtn.style.display = 'inline-flex';
         stopBtn.style.display = 'none';

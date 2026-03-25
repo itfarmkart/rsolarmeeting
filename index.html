@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,10 @@
     <!-- Modern Font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <meta name="description" content="A simple, premium web application to record audio from Google Meet directly in your browser.">
+    <meta name="description"
+        content="A simple, premium web application to record audio from Google Meet directly in your browser.">
 </head>
+
 <body>
     <div class="background-animation"></div>
     <main class="container">
@@ -20,13 +23,13 @@
                 </div>
                 <p class="subtitle">Record Google Meet audio instantly directly from your browser.</p>
             </header>
-            
+
             <section class="recorder-section">
                 <div class="status-indicator">
                     <div class="dot" id="recordingIndicator"></div>
                     <span id="statusText">Ready to record</span>
                 </div>
-                
+
                 <div class="controls">
                     <button id="startBtn" class="btn primary">
                         <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
@@ -34,16 +37,17 @@
                         </svg>
                         Start Recording
                     </button>
-                    
+
                     <button id="stopBtn" class="btn danger" style="display: none;">
                         <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
                             <rect x="6" y="6" width="12" height="12"></rect>
                         </svg>
                         Stop Recording
                     </button>
-                    
+
                     <a id="downloadBtn" class="btn success" style="display: none;">
-                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                             <polyline points="7 10 12 15 17 10"></polyline>
                             <line x1="12" y1="15" x2="12" y2="3"></line>
@@ -52,12 +56,20 @@
                     </a>
                 </div>
 
+                <div id="audioPlaybackContainer"
+                    style="display: none; width: 100%; margin-top: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 14px;">
+                    <p style="margin-bottom: 10px; font-size: 14px; color: var(--text-secondary); text-align: center;">
+                        Preview Recording:</p>
+                    <audio id="audioPlayback" controls style="width: 100%; outline: none;"></audio>
+                </div>
+
                 <div class="instructions">
                     <h3>How it works:</h3>
                     <ol>
                         <li>Click <strong>Start Recording</strong>.</li>
                         <li>Select your Google Meet tab from the list.</li>
-                        <li><strong>CRITICAL:</strong> Make sure to check the <strong>"Share tab audio"</strong> toggle.</li>
+                        <li><strong>CRITICAL:</strong> Make sure to check the <strong>"Share tab audio"</strong> toggle.
+                        </li>
                         <li>Click <strong>Share</strong>. Your recording begins immediately.</li>
                     </ol>
                 </div>
@@ -67,4 +79,5 @@
 
     <script src="app.js"></script>
 </body>
+
 </html>
