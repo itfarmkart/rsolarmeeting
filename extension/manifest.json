@@ -7,10 +7,9 @@
     "tabCapture",
     "scripting",
     "activeTab",
+    "tabs",
     "storage",
-    "offscreen"
-  ],
-  "host_permissions": [
+    "offscreen",
     "https://meet.google.com/*"
   ],
   "background": {

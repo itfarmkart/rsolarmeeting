@@ -69,7 +69,11 @@ async function startRecording(streamId) {
         mediaRecorder.start();
 
     } catch (err) {
-        console.error('Offscreen recording error:', err);
+        console.error('Core Offscreen Recording Error:', err);
+        // Fallback or more info
+        if (err.name === 'NotAllowedError') {
+            console.error('Microphone or Tab capture permission denied.');
+        }
     }
 }
 
