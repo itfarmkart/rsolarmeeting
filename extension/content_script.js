@@ -47,8 +47,7 @@ function injectRecordButton() {
 
 function startRecording() {
     const btn = document.getElementById('meetrec-record-btn');
-    btn.classList.add('recording');
-    btn.querySelector('.meetrec-text').innerText = 'STOP';
+    if (btn) btn.classList.add('recording');
 
     // Message background script to start recording
     chrome.runtime.sendMessage({ action: 'START_RECORDING' });
@@ -56,8 +55,7 @@ function startRecording() {
 
 function stopRecording() {
     const btn = document.getElementById('meetrec-record-btn');
-    btn.classList.remove('recording');
-    btn.querySelector('.meetrec-text').innerText = 'REC';
+    if (btn) btn.classList.remove('recording');
 
     // Message background script to stop recording
     chrome.runtime.sendMessage({ action: 'STOP_RECORDING' });
