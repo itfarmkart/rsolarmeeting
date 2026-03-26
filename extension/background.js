@@ -6,40 +6,60 @@
 let isRecording = false;
 
 // Listen for messages from Content Script or Popup
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'START_RECORDING') {
-        if (isRecording) return;
+        if (isRecording) {
+            sendResponse({ status: 'already_recording' });
+            return;
+        }
 
-        // 1. Create Offscreen Document
-        await setupOffscreen();
-
-        // 2. Request stream ID using desktopCapture (Reliable for MV3)
-        // This will show a picker but it resolves the "Extension not invoked" error
-        chrome.desktopCapture.chooseDesktopMedia(['tab'], sender.tab, (streamId) => {
-            if (!streamId) {
-                console.error('Recording cancelled: No stream ID');
-                return;
-            }
-
-            chrome.runtime.sendMessage({
-                action: 'OFFSCREEN_START_CAPTURE',
-                streamId: streamId
-            });
-            isRecording = true;
-            updateAllTabsUI('UPDATE_UI_START');
-        });
+        startRecordingSequence(sender.tab.id);
+        sendResponse({ status: 'starting' });
     }
 
     else if (request.action === 'STOP_RECORDING') {
         chrome.runtime.sendMessage({ action: 'OFFSCREEN_STOP_CAPTURE' });
         isRecording = false;
         updateAllTabsUI('UPDATE_UI_STOP');
+        sendResponse({ status: 'stopping' });
     }
 
     else if (request.action === 'GET_STATUS') {
         sendResponse({ isRecording });
     }
+
+    return true; // Keep channel open
 });
+
+async function startRecordingSequence(tabId) {
+    try {
+        // 1. Create Offscreen Document
+        await setupOffscreen();
+
+        // 2. Request stream ID using desktopCapture
+        chrome.desktopCapture.chooseDesktopMedia(['tab'], (streamId) => {
+            if (!streamId) {
+                console.error('Recording cancelled by user');
+                isRecording = false;
+                updateAllTabsUI('UPDATE_UI_STOP');
+                return;
+            }
+
+            // 3. Inform offscreen to start
+            // Give it a tiny bit of time to ensure listener is ready
+            setTimeout(() => {
+                chrome.runtime.sendMessage({
+                    action: 'OFFSCREEN_START_CAPTURE',
+                    streamId: streamId
+                });
+                isRecording = true;
+                updateAllTabsUI('UPDATE_UI_START');
+            }, 500);
+        });
+    } catch (err) {
+        console.error('Failed to start recording sequence:', err);
+    }
+}
 
 async function setupOffscreen() {
     const existingContexts = await chrome.runtime.getContexts({

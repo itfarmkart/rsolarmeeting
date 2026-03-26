@@ -17,6 +17,7 @@ chrome.runtime.onMessage.addListener(async (request) => {
 });
 
 async function startRecording(streamId) {
+    console.log('Offscreen: Starting recording with streamId:', streamId);
     try {
         // 1. Get Tab Audio Stream via StreamId (from DesktopCapture)
         const tabStream = await navigator.mediaDevices.getUserMedia({
@@ -26,8 +27,22 @@ async function startRecording(streamId) {
                     chromeMediaSourceId: streamId
                 }
             },
-            video: false
+            video: {
+                mandatory: {
+                    chromeMediaSource: 'desktop',
+                    chromeMediaSourceId: streamId
+                }
+            }
         });
+
+        // We only want the audio track from the desktop stream
+        const tabAudioTrack = tabStream.getAudioTracks()[0];
+        if (!tabAudioTrack) throw new Error('No audio track found in tab stream');
+
+        // Stop the video track immediately as we don't need it
+        tabStream.getVideoTracks().forEach(t => t.stop());
+
+        const tabAudioStream = new MediaStream([tabAudioTrack]);
 
         // 2. Get Microphone Stream
         const micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
