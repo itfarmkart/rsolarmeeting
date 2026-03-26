@@ -10,13 +10,17 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     if (request.action === 'START_RECORDING') {
         if (isRecording) return;
 
-        // 1. Create Offscreen Document if it doesn't exist
+        // 1. Create Offscreen Document
         await setupOffscreen();
 
-        // 2. Start capturing the tab
-        // Note: tabCapture.getMediaStream must be called from the background or offscreen
-        // In MV3, we get the stream ID and send it to offscreen
-        chrome.tabCapture.getMediaStreamId({ targetTabId: sender.tab.id }, (streamId) => {
+        // 2. Request stream ID using desktopCapture (Reliable for MV3)
+        // This will show a picker but it resolves the "Extension not invoked" error
+        chrome.desktopCapture.chooseDesktopMedia(['tab'], sender.tab, (streamId) => {
+            if (!streamId) {
+                console.error('Recording cancelled: No stream ID');
+                return;
+            }
+
             chrome.runtime.sendMessage({
                 action: 'OFFSCREEN_START_CAPTURE',
                 streamId: streamId

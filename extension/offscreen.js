@@ -18,11 +18,11 @@ chrome.runtime.onMessage.addListener(async (request) => {
 
 async function startRecording(streamId) {
     try {
-        // 1. Get Tab Audio Stream via StreamId
+        // 1. Get Tab Audio Stream via StreamId (from DesktopCapture)
         const tabStream = await navigator.mediaDevices.getUserMedia({
             audio: {
                 mandatory: {
-                    chromeMediaSource: 'tab',
+                    chromeMediaSource: 'desktop',
                     chromeMediaSourceId: streamId
                 }
             },
