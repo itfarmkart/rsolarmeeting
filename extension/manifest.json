@@ -9,7 +9,9 @@
     "activeTab",
     "tabs",
     "storage",
-    "offscreen",
+    "offscreen"
+  ],
+  "host_permissions": [
     "https://meet.google.com/*"
   ],
   "background": {

@@ -41,7 +41,7 @@ function injectRecordButton() {
 
     btnContainer.appendChild(btn);
     // 3. Inject at the beginning of the control bar
-    buttonContainer.prepend(btnContainer);
+    buttonGroup.prepend(btnContainer);
     console.log('MeetRec: Button injected successfully.');
 }
 
