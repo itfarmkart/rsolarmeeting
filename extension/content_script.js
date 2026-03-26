@@ -18,10 +18,14 @@ function injectRecordButton() {
 
     const btn = document.createElement('button');
     btn.id = 'meetrec-record-btn';
-    btn.className = 'meetrec-btn';
+    btn.className = 'meetrec-btn native-style';
     btn.innerHTML = `
-        <div class="meetrec-dot"></div>
-        <span class="meetrec-text">REC</span>
+        <div class="meetrec-icon-wrapper">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                <circle cx="12" cy="12" r="8" class="outer-circle" fill="none" stroke="currentColor" stroke-width="2"></circle>
+                <circle cx="12" cy="12" r="5" class="inner-dot"></circle>
+            </svg>
+        </div>
     `;
     btn.title = "Start MeetRec Recording";
 
