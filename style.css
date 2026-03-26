@@ -25,8 +25,12 @@ body {
     min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
-    overflow: hidden;
+    align-items: flex-start;
+    /* Better for tall content */
+    padding: 60px 20px;
+    /* Ensure space at top/bottom */
+    overflow-y: auto;
+    /* Allow scrolling if content is tall */
     position: relative;
 }
 
@@ -69,12 +73,16 @@ body {
     border-radius: 24px;
     padding: 40px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    transform: translateY(20px);
+    animation: fadeIn 0.6s ease-out forwards;
     opacity: 0;
 }
 
 @keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
     to {
         opacity: 1;
         transform: translateY(0);
