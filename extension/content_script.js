@@ -6,19 +6,11 @@
 function injectRecordButton() {
     if (document.getElementById('meetrec-btn-container')) return;
 
-    // Try multiple ways to find the meeting control bar
-    // 1. Look for the container of the microphone button
-    const micBtn = document.querySelector('div[data-is-muted]');
-    let buttonGroup = micBtn?.closest('div[role="group"]') ||
-        micBtn?.parentElement?.parentElement?.parentElement ||
-        document.querySelector('.R5Y7lb') ||
-        document.querySelector('.r67Sbe'); // Common toolbar classes
-
-    if (!buttonGroup) {
-        // Fallback: look for the hangup button area
-        const hangupBtn = document.querySelector('button[aria-label*="leave"], button[aria-label*="Leave"]');
-        buttonGroup = hangupBtn?.parentElement?.parentElement;
-    }
+    // Use a more stable selector for the main meeting control bar
+    // jsname="p297S" is the standard container for Meet toolbar buttons
+    const buttonGroup = document.querySelector('div[jsname="p297S"]') ||
+        document.querySelector('div[role="group"]') ||
+        document.querySelector('.R5Y7lb');
 
     if (!buttonGroup) return;
 
@@ -78,10 +70,8 @@ chrome.runtime.onMessage.addListener((request) => {
 
     if (request.action === 'UPDATE_UI_START') {
         btn.classList.add('recording');
-        btn.querySelector('.meetrec-text').innerText = 'STOP';
     } else if (request.action === 'UPDATE_UI_STOP') {
         btn.classList.remove('recording');
-        btn.querySelector('.meetrec-text').innerText = 'REC';
     }
 });
 
