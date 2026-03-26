@@ -103,8 +103,26 @@ chrome.runtime.onMessage.addListener((request) => {
 });
 
 // Observe DOM changes to keep the button injected
-const observer = new MutationObserver(() => injectRecordButton());
+const observer = new MutationObserver(() => {
+    try {
+        // Simple check to see if context is still valid
+        if (chrome.runtime?.id) {
+            injectRecordButton();
+        } else {
+            console.log('MeetRec: Context invalidated. Stopping observer.');
+            observer.disconnect();
+            const btn = document.getElementById('meetrec-btn-container');
+            if (btn) btn.remove();
+        }
+    } catch (e) {
+        observer.disconnect();
+    }
+});
 observer.observe(document.body, { childList: true, subtree: true });
 
 // Initial injection
-injectRecordButton();
+try {
+    injectRecordButton();
+} catch (e) {
+    console.warn('MeetRec: Initial injection failed (likely context invalidated)');
+}
