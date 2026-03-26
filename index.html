@@ -56,6 +56,14 @@
                     </a>
                 </div>
 
+                <div id="visualizerContainer"
+                    style="display: none; width: 100%; margin-top: 20px; background: rgba(0,0,0,0.3); border-radius: 14px; overflow: hidden; height: 80px; position: relative; border: 1px solid var(--glass-border);">
+                    <canvas id="visualizer" style="width: 100%; height: 100%; display: block;"></canvas>
+                    <div
+                        style="position: absolute; top: 10px; left: 10px; font-size: 10px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">
+                        Audio Signal</div>
+                </div>
+
                 <div id="audioPlaybackContainer"
                     style="display: none; width: 100%; margin-top: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 14px;">
                     <p style="margin-bottom: 10px; font-size: 14px; color: var(--text-secondary); text-align: center;">
@@ -67,10 +75,11 @@
                     <h3>How it works:</h3>
                     <ol>
                         <li>Click <strong>Start Recording</strong>.</li>
-                        <li>Select your Google Meet tab from the list.</li>
-                        <li><strong>CRITICAL:</strong> Make sure to check the <strong>"Share tab audio"</strong> toggle.
-                        </li>
-                        <li>Click <strong>Share</strong>. Your recording begins immediately.</li>
+                        <li><strong>Allow Microphone:</strong> Grant permission to record your voice.</li>
+                        <li><strong>Select Tab:</strong> Choose your Google Meet or YouTube tab.</li>
+                        <li><strong>CRITICAL:</strong> Check the <strong>"Share tab audio"</strong> toggle in the bottom
+                            left of the selection window.</li>
+                        <li>Click <strong>Share</strong> to start capturing both sources.</li>
                     </ol>
                 </div>
             </section>

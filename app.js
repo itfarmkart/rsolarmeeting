@@ -6,38 +6,76 @@ document.addEventListener('DOMContentLoaded', () => {
     const recordingIndicator = document.getElementById('recordingIndicator');
     const audioPlaybackContainer = document.getElementById('audioPlaybackContainer');
     const audioPlayback = document.getElementById('audioPlayback');
+    const visualizerContainer = document.getElementById('visualizerContainer');
+    const canvas = document.getElementById('visualizer');
+    const canvasCtx = canvas.getContext('2d');
 
     let mediaRecorder;
     let audioChunks = [];
-    let stream;
+    let displayStream;
+    let micStream;
+    let audioContext;
+    let animationId;
 
     startBtn.addEventListener('click', async () => {
         try {
-            // Request display media (screen/tab sharing)
-            stream = await navigator.mediaDevices.getDisplayMedia({
-                video: {
-                    displaySurface: "browser", // Prefer tab sharing
-                },
-                audio: {
-                    echoCancellation: false,
-                    noiseSuppression: false,
-                    autoGainControl: false,
-                }
-            });
-
-            // Verify if audio track was actually shared
-            const audioTracks = stream.getAudioTracks();
-            if (audioTracks.length === 0) {
-                alert('No audio track detected! Please make sure to check "Share tab audio" in the Chrome dialog when selecting the tab.');
-                stream.getTracks().forEach(t => t.stop());
+            // 1. Request Microphone Media
+            try {
+                micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            } catch (micErr) {
+                console.error('Microphone access denied:', micErr);
+                alert('Microphone access is required for recording your voice. Please allow it and try again.');
                 return;
             }
 
-            // Create a new stream with only the audio track, dropping the video
-            const audioStream = new MediaStream(audioTracks);
+            // 2. Request Display Media (Screen/Tab)
+            try {
+                displayStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { displaySurface: "browser" },
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false,
+                    }
+                });
+            } catch (displayErr) {
+                console.error('Display media denied:', displayErr);
+                micStream.getTracks().forEach(t => t.stop());
+                return;
+            }
 
-            // Setup MediaRecorder
-            mediaRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm' });
+            // Verify if tab audio was actually shared
+            const displayAudioTracks = displayStream.getAudioTracks();
+            if (displayAudioTracks.length === 0) {
+                alert('No tab audio detected! Please make sure to check "Share tab audio" in the selection dialog.');
+                stopAllTracks();
+                return;
+            }
+
+            // 3. Setup Web Audio API for mixing
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const destination = audioContext.createMediaStreamDestination();
+
+            // Create sources
+            const micSource = audioContext.createMediaStreamSource(micStream);
+            const displaySource = audioContext.createMediaStreamSource(displayStream);
+
+            // Analyser for visualization
+            const analyser = audioContext.createAnalyser();
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+
+            // Connect everything
+            micSource.connect(destination);
+            displaySource.connect(destination);
+
+            // Connect to analyser too
+            micSource.connect(analyser);
+            displaySource.connect(analyser);
+
+            // 4. Setup MediaRecorder with the mixed destination stream
+            mediaRecorder = new MediaRecorder(destination.stream, { mimeType: 'audio/webm' });
 
             mediaRecorder.ondataavailable = event => {
                 if (event.data.size > 0) {
@@ -49,30 +87,55 @@ document.addEventListener('DOMContentLoaded', () => {
                 const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                 const audioUrl = URL.createObjectURL(audioBlob);
 
-                // Format the download name with current date/time
                 const date = new Date();
                 const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}_${String(date.getHours()).padStart(2, '0')}-${String(date.getMinutes()).padStart(2, '0')}`;
 
                 downloadBtn.href = audioUrl;
-                downloadBtn.download = `Meeting_Audio_${formattedDate}.webm`;
+                downloadBtn.download = `Meeting_Mixed_Audio_${formattedDate}.webm`;
                 downloadBtn.style.display = 'inline-flex';
 
-                // Set the preview player source and show it
                 audioPlayback.src = audioUrl;
                 audioPlaybackContainer.style.display = 'block';
-
-                audioChunks = []; // Clear for next recording
+                audioChunks = [];
             };
 
-            // Setup 'ended' listener on video track to stop recording if user clicks "Stop sharing" on system banner
-            const videoTracks = stream.getVideoTracks();
-            if (videoTracks.length > 0) {
-                videoTracks[0].addEventListener('ended', () => {
-                    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                        stopRecording();
-                    }
-                });
+            // Stop recording if display sharing is ended by user
+            displayStream.getVideoTracks()[0].addEventListener('ended', () => {
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    stopRecording();
+                }
+            });
+
+            // 5. Start Visualizer
+            visualizerContainer.style.display = 'block';
+            function draw() {
+                animationId = requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+
+                canvas.width = visualizerContainer.offsetWidth;
+                canvas.height = visualizerContainer.offsetHeight;
+
+                canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+
+                const barWidth = (canvas.width / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
+
+                for (let i = 0; i < bufferLength; i++) {
+                    barHeight = dataArray[i] / 2;
+
+                    // Premium gradient look
+                    const gradient = canvasCtx.createLinearGradient(0, canvas.height, 0, 0);
+                    gradient.addColorStop(0, '#6366f1');
+                    gradient.addColorStop(1, '#a5b4fc');
+
+                    canvasCtx.fillStyle = gradient;
+                    canvasCtx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
+
+                    x += barWidth + 1;
+                }
             }
+            draw();
 
             // Start recording
             mediaRecorder.start();
@@ -81,18 +144,15 @@ document.addEventListener('DOMContentLoaded', () => {
             startBtn.style.display = 'none';
             stopBtn.style.display = 'inline-flex';
             downloadBtn.style.display = 'none';
-            audioPlaybackContainer.style.display = 'none'; // Hide preview when re-recording
-            statusText.innerText = 'Recording in progress... (Meeting Audio)';
+            audioPlaybackContainer.style.display = 'none';
+            statusText.innerText = 'Recording Mixed Audio (Mic + Tab)...';
             statusText.style.color = 'var(--text-primary)';
             recordingIndicator.classList.add('active');
 
         } catch (err) {
             console.error('Error starting recording:', err);
-            if (err.name === 'NotAllowedError') {
-                alert('Permission denied or you cancelled the request.');
-            } else {
-                alert('Could not start recording. ' + err.message);
-            }
+            alert('Could not start recording: ' + err.message);
+            stopAllTracks();
         }
     });
 
@@ -105,12 +165,13 @@ document.addEventListener('DOMContentLoaded', () => {
             mediaRecorder.stop();
         }
 
-        // Stop all tracks to remove the "Currently sharing" browser indicator
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
+        cancelAnimationFrame(animationId);
+        stopAllTracks();
+
+        if (audioContext && audioContext.state !== 'closed') {
+            audioContext.close();
         }
 
-        // Update UI
         startBtn.style.display = 'inline-flex';
         stopBtn.style.display = 'none';
         startBtn.innerHTML = `
@@ -119,8 +180,17 @@ document.addEventListener('DOMContentLoaded', () => {
             </svg>
             Record Another Meeting
         `;
-        statusText.innerText = 'Recording saved! Click to download.';
+        statusText.innerText = 'Recording saved! Check the preview below.';
         statusText.style.color = 'var(--success)';
         recordingIndicator.classList.remove('active');
+    }
+
+    function stopAllTracks() {
+        if (displayStream) {
+            displayStream.getTracks().forEach(track => track.stop());
+        }
+        if (micStream) {
+            micStream.getTracks().forEach(track => track.stop());
+        }
     }
 });
