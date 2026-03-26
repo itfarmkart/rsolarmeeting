@@ -35,6 +35,8 @@ async function startRecording(streamId) {
             }
         });
 
+        console.log('Offscreen: Tab stream captured.');
+
         // We only want the audio track from the desktop stream
         const tabAudioTrack = tabStream.getAudioTracks()[0];
         if (!tabAudioTrack) throw new Error('No audio track found in tab stream');
