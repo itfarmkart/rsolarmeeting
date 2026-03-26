@@ -26,24 +26,24 @@ body {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    /* Better for tall content */
-    padding: 60px 20px;
-    /* Ensure space at top/bottom */
+    padding: 40px 20px;
+    overflow-x: hidden;
     overflow-y: auto;
-    /* Allow scrolling if content is tall */
     position: relative;
+    margin: 0;
 }
 
 /* Beautiful dynamic background */
 .background-animation {
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, rgba(15, 23, 42, 1) 50%);
-    z-index: 0;
-    animation: rotateBg 30s linear infinite;
+    position: fixed;
+    /* Use fixed to keep it out of document flow */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 50%, rgba(99, 102, 241, 0.15) 0%, rgba(15, 23, 42, 1) 80%);
+    z-index: -1;
+    /* Place behind everything */
 }
 
 @keyframes rotateBg {
