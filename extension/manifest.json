@@ -4,6 +4,7 @@
   "version": "1.0",
   "description": "Record Google Meet audio with one click directly from the toolbar.",
   "permissions": [
+    "desktopCapture",
     "tabCapture",
     "scripting",
     "activeTab",
