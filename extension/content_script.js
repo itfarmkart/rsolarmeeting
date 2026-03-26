@@ -4,12 +4,22 @@
  */
 
 function injectRecordButton() {
-    // Look for the main meeting control bar
-    const toolbar = document.querySelector('div[data-is-muted]')?.closest('.R5Y7lb')?.parentElement;
-    if (!toolbar || document.getElementById('meetrec-btn-container')) return;
+    if (document.getElementById('meetrec-btn-container')) return;
 
-    // Alternative: find the container of all circular buttons
-    const buttonGroup = document.querySelector('.R5Y7lb');
+    // Try multiple ways to find the meeting control bar
+    // 1. Look for the container of the microphone button
+    const micBtn = document.querySelector('div[data-is-muted]');
+    let buttonGroup = micBtn?.closest('div[role="group"]') ||
+        micBtn?.parentElement?.parentElement?.parentElement ||
+        document.querySelector('.R5Y7lb') ||
+        document.querySelector('.r67Sbe'); // Common toolbar classes
+
+    if (!buttonGroup) {
+        // Fallback: look for the hangup button area
+        const hangupBtn = document.querySelector('button[aria-label*="leave"], button[aria-label*="Leave"]');
+        buttonGroup = hangupBtn?.parentElement?.parentElement;
+    }
+
     if (!buttonGroup) return;
 
     const btnContainer = document.createElement('div');
@@ -38,8 +48,9 @@ function injectRecordButton() {
     };
 
     btnContainer.appendChild(btn);
-    // Use prepend to put it at the beginning of the button group to avoid overlap with right-side controls
-    buttonGroup.prepend(btnContainer);
+    // 3. Inject at the beginning of the control bar
+    buttonContainer.prepend(btnContainer);
+    console.log('MeetRec: Button injected successfully.');
 }
 
 function startRecording() {
