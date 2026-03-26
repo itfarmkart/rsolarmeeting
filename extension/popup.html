@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="popup.css">
+</head>
+
+<body>
+    <div class="popup-container">
+        <header>
+            <div class="logo">
+                <span class="icon">⏺</span>
+                <h1>MeetRec</h1>
+            </div>
+        </header>
+
+        <main>
+            <div class="status-card">
+                <div class="status-indicator">
+                    <div id="recordingIndicator" class="dot"></div>
+                    <span id="statusText">Ready</span>
+                </div>
+                <div id="timer" class="timer">00:00:00</div>
+            </div>
+
+            <div class="controls">
+                <button id="toggleBtn" class="btn primary">Start Recording</button>
+            </div>
+
+            <div class="info">
+                <p>Ensure you are in a <a href="https://meet.google.com" target="_blank">Google Meet</a> tab.</p>
+            </div>
+        </main>
+
+        <footer>
+            <span>MeetRec v1.0</span>
+        </footer>
+    </div>
+    <script src="popup.js"></script>
+</body>
+
+</html>

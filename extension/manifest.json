@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "MeetRec - Google Meet Audio Recorder",
+  "version": "1.0",
+  "description": "Record Google Meet audio with one click directly from the toolbar.",
+  "permissions": [
+    "tabCapture",
+    "scripting",
+    "activeTab",
+    "storage",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "https://meet.google.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://meet.google.com/*"],
+      "js": ["content_script.js"],
+      "css": ["content_style.css"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["offscreen.html", "offscreen.js"],
+      "matches": ["https://meet.google.com/*"]
+    }
+  ]
+}
