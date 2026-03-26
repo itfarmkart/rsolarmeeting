@@ -6,13 +6,40 @@
 function injectRecordButton() {
     if (document.getElementById('meetrec-btn-container')) return;
 
-    // Use a more stable selector for the main meeting control bar
-    // jsname="p297S" is the standard container for Meet toolbar buttons
-    const buttonGroup = document.querySelector('div[jsname="p297S"]') ||
-        document.querySelector('div[role="group"]') ||
-        document.querySelector('.R5Y7lb');
+    console.log('MeetRec: Attempting to find toolbar...');
 
-    if (!buttonGroup) return;
+    // Try multiple ways to find the meeting control bar
+    const selectors = [
+        'div[jsname="p297S"]', // Main button group
+        'div[role="group"]',   // Generic ARIA group
+        '.cC4eCc',             // Newer toolbar class
+        '.R5Y7lb',             // Older toolbar class
+        '.x3998b',             // Another variation
+        '.fS74vd'              // Yet another variation
+    ];
+
+    let buttonGroup = null;
+    for (const selector of selectors) {
+        buttonGroup = document.querySelector(selector);
+        if (buttonGroup) {
+            console.log(`MeetRec: Found toolbar using selector: ${selector}`);
+            break;
+        }
+    }
+
+    if (!buttonGroup) {
+        // Fallback: search for the microphone button and find its group parent
+        const micBtn = document.querySelector('div[data-is-muted]');
+        if (micBtn) {
+            buttonGroup = micBtn.closest('div[role="group"]') || micBtn.parentElement?.parentElement;
+            if (buttonGroup) console.log('MeetRec: Found toolbar via Mic button parent.');
+        }
+    }
+
+    if (!buttonGroup) {
+        console.warn('MeetRec: Could not find Google Meet toolbar.');
+        return;
+    }
 
     const btnContainer = document.createElement('div');
     btnContainer.id = 'meetrec-btn-container';
