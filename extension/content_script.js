@@ -6,40 +6,42 @@
 function injectRecordButton() {
     if (document.getElementById('meetrec-btn-container')) return;
 
-    console.log('MeetRec: Attempting to find toolbar...');
-
-    // Try multiple ways to find the meeting control bar
-    const selectors = [
-        'div[jsname="p297S"]', // Main button group
-        'div[role="group"]',   // Generic ARIA group
-        '.cC4eCc',             // Newer toolbar class
-        '.R5Y7lb',             // Older toolbar class
-        '.x3998b',             // Another variation
-        '.fS74vd'              // Yet another variation
-    ];
-
+    // Search for a container that looks like the meeting control bar
     let buttonGroup = null;
-    for (const selector of selectors) {
-        buttonGroup = document.querySelector(selector);
-        if (buttonGroup) {
-            console.log(`MeetRec: Found toolbar using selector: ${selector}`);
-            break;
+
+    // Method 1: Use specific jsname attribute (very stable for Meet)
+    buttonGroup = document.querySelector('div[jsname="p297S"]');
+
+    // Method 2: Find Hangup button and look at its siblings/parent
+    if (!buttonGroup) {
+        const hangupBtn = document.querySelector('button[aria-label*="leave"], button[aria-label*="Leave"]')?.closest('div');
+        if (hangupBtn) {
+            // The toolbar is usually the parent of the div containing the hangup button
+            buttonGroup = hangupBtn.parentElement;
+        }
+    }
+
+    // Method 3: Find Mic/Cam buttons and look at their group
+    if (!buttonGroup) {
+        const anyMeetingBtn = document.querySelector('div[data-is-muted], div[jscontroller="N6Nf8b"]');
+        buttonGroup = anyMeetingBtn?.closest('div[role="group"]');
+    }
+
+    // Method 4: Common class fallbacks
+    if (!buttonGroup) {
+        const commonClasses = ['.cC4eCc', '.R5Y7lb', '.x3998b'];
+        for (const cls of commonClasses) {
+            buttonGroup = document.querySelector(cls);
+            if (buttonGroup) break;
         }
     }
 
     if (!buttonGroup) {
-        // Fallback: search for the microphone button and find its group parent
-        const micBtn = document.querySelector('div[data-is-muted]');
-        if (micBtn) {
-            buttonGroup = micBtn.closest('div[role="group"]') || micBtn.parentElement?.parentElement;
-            if (buttonGroup) console.log('MeetRec: Found toolbar via Mic button parent.');
-        }
-    }
-
-    if (!buttonGroup) {
-        console.warn('MeetRec: Could not find Google Meet toolbar.');
+        // If we still can't find it, don't log too much (avoid spam)
         return;
     }
+
+    console.log('MeetRec: Found toolbar. Injecting...');
 
     const btnContainer = document.createElement('div');
     btnContainer.id = 'meetrec-btn-container';
