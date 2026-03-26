@@ -4,9 +4,13 @@
  */
 
 function injectRecordButton() {
-    // Look for the Meet toolbar (usually the div containing the mic/camera buttons)
-    const toolbar = document.querySelector('[data-is-muted][data-tooltip-id]')?.parentElement?.parentElement;
+    // Look for the main meeting control bar
+    const toolbar = document.querySelector('div[data-is-muted]')?.closest('.R5Y7lb')?.parentElement;
     if (!toolbar || document.getElementById('meetrec-btn-container')) return;
+
+    // Alternative: find the container of all circular buttons
+    const buttonGroup = document.querySelector('.R5Y7lb');
+    if (!buttonGroup) return;
 
     const btnContainer = document.createElement('div');
     btnContainer.id = 'meetrec-btn-container';
@@ -30,7 +34,8 @@ function injectRecordButton() {
     };
 
     btnContainer.appendChild(btn);
-    toolbar.appendChild(btnContainer);
+    // Use prepend to put it at the beginning of the button group to avoid overlap with right-side controls
+    buttonGroup.prepend(btnContainer);
 }
 
 function startRecording() {
