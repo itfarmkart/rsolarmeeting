@@ -17,24 +17,30 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_popup": "popup.html",
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    }
+    "default_popup": "popup.html"
   },
   "content_scripts": [
     {
-      "matches": ["https://meet.google.com/*"],
-      "js": ["content_script.js"],
-      "css": ["content_style.css"]
+      "matches": [
+        "https://meet.google.com/*"
+      ],
+      "js": [
+        "content_script.js"
+      ],
+      "css": [
+        "content_style.css"
+      ]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["offscreen.html", "offscreen.js"],
-      "matches": ["https://meet.google.com/*"]
+      "resources": [
+        "offscreen.html",
+        "offscreen.js"
+      ],
+      "matches": [
+        "https://meet.google.com/*"
+      ]
     }
   ]
 }
