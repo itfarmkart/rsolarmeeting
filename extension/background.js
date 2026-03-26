@@ -36,25 +36,32 @@ async function startRecordingSequence(tabId) {
         // 1. Create Offscreen Document
         await setupOffscreen();
 
-        // 2. Request stream ID using desktopCapture
-        chrome.desktopCapture.chooseDesktopMedia(['tab'], (streamId) => {
-            if (!streamId) {
-                console.error('Recording cancelled by user');
-                isRecording = false;
-                updateAllTabsUI('UPDATE_UI_STOP');
+        // 2. Get the actual tab object (required for reliable picker)
+        chrome.tabs.get(tabId, (tab) => {
+            if (chrome.runtime.lastError) {
+                console.error('Could not find tab:', chrome.runtime.lastError);
                 return;
             }
 
-            // 3. Inform offscreen to start
-            // Give it a tiny bit of time to ensure listener is ready
-            setTimeout(() => {
-                chrome.runtime.sendMessage({
-                    action: 'OFFSCREEN_START_CAPTURE',
-                    streamId: streamId
-                });
-                isRecording = true;
-                updateAllTabsUI('UPDATE_UI_START');
-            }, 500);
+            // 3. Request stream ID using desktopCapture
+            chrome.desktopCapture.chooseDesktopMedia(['tab'], tab, (streamId) => {
+                if (!streamId) {
+                    console.error('Recording cancelled by user or picker failed to open');
+                    isRecording = false;
+                    updateAllTabsUI('UPDATE_UI_STOP');
+                    return;
+                }
+
+                // 4. Inform offscreen to start
+                setTimeout(() => {
+                    chrome.runtime.sendMessage({
+                        action: 'OFFSCREEN_START_CAPTURE',
+                        streamId: streamId
+                    });
+                    isRecording = true;
+                    updateAllTabsUI('UPDATE_UI_START');
+                }, 500);
+            });
         });
     } catch (err) {
         console.error('Failed to start recording sequence:', err);
